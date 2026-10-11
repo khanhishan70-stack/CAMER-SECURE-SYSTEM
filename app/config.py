@@ -6,7 +6,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Current app version. Bumped on every release - the in-app updater compares
 # this against the latest GitHub release tag to offer one-click updates.
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.0.2"
 UPDATE_REPO = "khanhishan70-stack/CAMER-SECURE-SYSTEM"
 UPDATE_CHECK_HOURS = 6.0
 
