@@ -247,7 +247,7 @@ let justUpdatedSeen = null;
       try { dismissed = localStorage.getItem("css_update_dismissed"); } catch { /* ignore */ }
       if (dismissed !== s.update_latest && !updating) {
         updateBanner.style.display = "flex";
-        updateTitle.textContent = "Update available — v" + s.update_latest;
+        updateTitle.textContent = "Update available — v" + String(s.update_latest).replace(/^v/i, "");
         const notes = (s.update_notes || "A new version is ready.").trim();
         updateNotes.textContent = notes.length > 220 ? notes.slice(0, 220) + "…" : notes;
       } else {
@@ -259,8 +259,8 @@ let justUpdatedSeen = null;
 
     if (s.just_updated && justUpdatedSeen !== s.just_updated) {
       justUpdatedSeen = s.just_updated;
-      showNotification("Update complete — now running v" + s.just_updated, "match");
-      setVoiceLast("Update complete — now on v" + s.just_updated);
+      showNotification("Update complete — now running v" + String(s.just_updated).replace(/^v/i, ""), "match");
+      setVoiceLast("Update complete — now on v" + String(s.just_updated).replace(/^v/i, ""));
       try { localStorage.removeItem("css_update_dismissed"); } catch { /* ignore */ }
       fetch("/api/update/ack", { method: "POST" }).catch(() => {});
     }
