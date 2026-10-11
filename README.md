@@ -8,8 +8,6 @@
 ⬇️ **Direct download (Windows):**
 **https://github.com/khanhishan70-stack/CAMER-SECURE-SYSTEM/releases/download/v1.0.0/CAMER-SECURE-SYSTEM-Windows.zip**
 
-![CAMER SECURE SYSTEM app](docs/assets/shot-main.png)
-
 ## What it does
 
 - **Face guard** — enroll your face once; the app knows when *you* are at the desk.
@@ -83,8 +81,10 @@ Face embeddings, password hashes and mic state live in `data/` locally and are *
 
 ## Screenshots
 
-![Live preview with animated face box](docs/assets/shot-preview.png)
 ![Voice control + mic mute](docs/assets/shot-voice.png)
+![Face enrollment + lock password](docs/assets/shot-setup.png)
+
+More on the website: **https://khanhishan70-stack.github.io/CAMER-SECURE-SYSTEM/#screenshots**
 
 ---
 MIT License — made with 💻 by **khanhishan70-stack**
