@@ -21,13 +21,16 @@
 ## Setup (normal users — 5 minutes)
 
 1. **Download** the zip above and extract it anywhere.
-2. Install **Python 3.12** (Windows installer, tick *Add to PATH*).
-3. Open Command Prompt **in the extracted folder** and install the brain:
-   ```bat
-   "C:\Program Files\Python312\python.exe" -m pip install -r requirements.txt
-   ```
-   The face-AI model (~300 MB) downloads itself on first start. The voice model is already in the zip.
-4. Double-click **`SecureCam.exe`**. The app opens — done.
+2. Double-click **`SETUP-CAMER-SECURE-SYSTEM.exe`** (or `SETUP-AND-RUN.bat`) — it **automatically** installs Python 3.12 (if missing), installs all AI packages, creates a Desktop icon, and launches the app. It also prints how to launch + activate.
+3. First start takes ~30 seconds (the face-AI model downloads itself once — keep internet on).
+
+Manual alternative (if the setup file can't reach the internet for Python):
+```bat
+REM 1. Install Python 3.12 from python.org (tick "Add to PATH")
+REM 2. In the extracted folder:
+"C:\Program Files\Python312\python.exe" -m pip install -r requirements.txt
+REM 3. Double-click SecureCam.exe
+```
 
 Then inside the app:
 
