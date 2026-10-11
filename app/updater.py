@@ -133,10 +133,15 @@ title CAMER SECURE SYSTEM - applying update {version}
 cd /d "%TEMP%"
 set "LOG=%TEMP%\\css_update_{version}.log"
 echo [%date% %time%] Stopping app for update >> "%LOG%"
+set "TRIES=0"
+:killwait
 taskkill /F /IM SecureCam.exe >> "%LOG%" 2>&1
-timeout /t 5 /nobreak >nul
-taskkill /F /IM SecureCam.exe >> "%LOG%" 2>&1
-timeout /t 2 /nobreak >nul
+timeout /t 3 /nobreak >nul
+tasklist /FI "IMAGENAME eq SecureCam.exe" 2>nul | find /i "SecureCam.exe" >nul
+if errorlevel 1 goto copyfiles
+set /a TRIES+=1
+if %TRIES% LSS 10 goto killwait
+:copyfiles
 echo [%date% %time%] Copying new files >> "%LOG%"
 robocopy "{stage_dir}\\SecureCam-win32-x64" "{app_dir}" /E /NFL /NDL /NJH /NJS /R:3 /W:3 /XF {xf} >> "%LOG%" 2>&1
 robocopy "{stage_dir}" "{install_root}" SETUP-AND-RUN.bat SETUP-CAMER-SECURE-SYSTEM.exe requirements.txt /NFL /NDL /NJH /NJS /R:3 /W:3 >> "%LOG%" 2>&1
