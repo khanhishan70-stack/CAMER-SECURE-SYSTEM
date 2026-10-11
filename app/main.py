@@ -266,6 +266,42 @@ async def api_voice_mute(body: dict) -> dict:
     return engine.voice_status() | {"ok": True}
 
 
+@app.get("/api/update")
+async def api_update_info() -> dict:
+    """Cached update state (background checker refreshes every few hours)."""
+    return engine.update_info()
+
+
+@app.post("/api/update/check")
+async def api_update_check() -> dict:
+    """Force an immediate check against GitHub releases."""
+    return await asyncio.to_thread(engine.refresh_update_check)
+
+
+@app.post("/api/update")
+async def api_update_start() -> dict:
+    """One-click update: download, apply, re-run setup, restart the app."""
+    ok, err = engine.start_update()
+    if not ok:
+        raise HTTPException(status_code=400, detail=err or "Cannot start update")
+    return {"ok": True}
+
+
+@app.get("/api/update/progress")
+async def api_update_progress() -> dict:
+    return engine.update_progress()
+
+
+@app.post("/api/update/ack")
+async def api_update_ack() -> dict:
+    """Dismiss the post-update flag after the UI showed 'Update complete'."""
+    from app import updater as app_updater
+    from app.config import DATA_DIR
+
+    app_updater.ack_just_updated(DATA_DIR)
+    return {"ok": True}
+
+
 @app.get("/api/cameras")
 async def api_cameras_list() -> dict:
     devices = await asyncio.to_thread(list_cameras)

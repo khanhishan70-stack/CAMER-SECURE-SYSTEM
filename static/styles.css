@@ -186,6 +186,22 @@ body {
   opacity: 0.8;
 }
 
+.update-banner {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 0;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12));
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.18);
+}
+.update-text { flex: 1; min-width: 0; }
+.update-text .subtle { display: block; }
+.update-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
 .layout {
   display: grid;
   grid-template-columns: 1.15fr 1fr;

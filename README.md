@@ -17,6 +17,7 @@
 - **Mic MUTE** — fully shuts the microphone down (not even the wake word listens). Saved permanently until you unmute.
 - **Guard announcements** — *"Guard active."* when you leave the desk, *"Welcome back"* when you return.
 - **Shoulder-surfing alert + intruder warning** popups.
+- **Self-updating** — when a new version drops, the app pops *Update available*; one click downloads, installs, re-runs setup (fresh dependencies), restarts, and pops *Update complete*.
 
 ## Setup (normal users — 5 minutes)
 

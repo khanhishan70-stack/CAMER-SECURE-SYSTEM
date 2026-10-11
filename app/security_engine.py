@@ -1,6 +1,9 @@
 ﻿from __future__ import annotations
 
 import math
+import os
+import shutil
+import subprocess
 import threading
 import time
 from dataclasses import dataclass
@@ -15,7 +18,9 @@ from app.camera_utils import list_cameras, open_camera
 from app.config import (
     ANALYSIS_INTERVAL_MS,
     ANALYSIS_SCALE,
+    APP_VERSION,
     CAMERA_INDEX,
+    DATA_DIR,
     ENGINE_LOOP_INTERVAL_SECONDS,
     ENGINE_TICK_WAIT_SECONDS,
     MATCH_THRESHOLD,
@@ -24,10 +29,13 @@ from app.config import (
     PREVIEW_QUALITY,
     PREVIEW_MAX_WIDTH,
     UNKNOWN_VERIFY_SECONDS,
+    UPDATE_CHECK_HOURS,
+    UPDATE_REPO,
     GUARD_ANNOUNCE_COOLDOWN_SECONDS,
     VOICE_DONE_PATH,
     VOICE_GUARD_PATH,
 )
+from app import updater as app_updater
 from app.face_store import load_embedding, save_embedding
 
 
@@ -102,6 +110,19 @@ class SecurityEngine:
             target=self._analysis_loop, name="SecureCamFaceAI", daemon=True
         )
         self._analysis_thread.start()
+        # Self-update system: polls the latest GitHub release in the
+        # background. When a newer tag appears the UI pops an "Update
+        # available" banner; one click downloads, applies, re-runs setup
+        # (fresh dependencies), restarts, and pops "Update complete".
+        self._install_root = app_updater.find_install_root(Path(__file__).parent)
+        self._update_info: dict = {"available": False}
+        self._update_prog = {"stage": "idle", "percent": 0, "detail": ""}
+        self._update_prog_lock = threading.Lock()
+        self._update_stop = threading.Event()
+        self._update_thread = threading.Thread(
+            target=self._update_check_loop, name="SecureCamUpdater", daemon=True
+        )
+        self._update_thread.start()
         self._status = EngineStatus()
         self._post_lock_cooldown_until = 0.0
         self._pending_enroll = threading.Event()
@@ -206,6 +227,13 @@ class SecurityEngine:
                 "mic_level": mic_level,
                 "mic_flash": time.monotonic() < self._mic_flash_until,
                 "voice_event": voice_event,
+                "app_version": APP_VERSION,
+                "update_available": bool(self._update_info.get("available")),
+                "update_latest": self._update_info.get("latest", ""),
+                "update_notes": str(self._update_info.get("notes", ""))[:800],
+                "update_packaged": self._install_root is not None,
+                "update_prog": self.update_progress(),
+                "just_updated": app_updater.peek_just_updated(DATA_DIR),
             }
 
     def get_preview_jpeg(self) -> bytes | None:
@@ -351,6 +379,115 @@ class SecurityEngine:
             finally:
                 with self._analysis_lock:
                     self._analysis_busy = False
+
+    # ---------------- self-update ----------------
+
+    def _set_update_prog(self, stage: str, percent: int = 0, detail: str = "") -> None:
+        with self._update_prog_lock:
+            self._update_prog = {"stage": stage, "percent": percent, "detail": detail}
+
+    def update_progress(self) -> dict[str, Any]:
+        with self._update_prog_lock:
+            return dict(self._update_prog)
+
+    def update_info(self) -> dict[str, Any]:
+        with self._lock:
+            info = dict(self._update_info)
+        return {
+            "packaged": self._install_root is not None,
+            "current": APP_VERSION,
+            "available": bool(info.get("available")),
+            "latest": info.get("latest", ""),
+            "notes": str(info.get("notes", ""))[:800],
+            "size": info.get("size", 0),
+        }
+
+    def refresh_update_check(self) -> dict[str, Any]:
+        """Force an immediate check against GitHub (manual refresh button)."""
+        try:
+            res = app_updater.check_for_update(APP_VERSION, UPDATE_REPO)
+            with self._lock:
+                self._update_info = res
+        except Exception:  # noqa: BLE001
+            pass
+        return self.update_info()
+
+    def _update_check_loop(self) -> None:
+        time.sleep(20.0)
+        while not self._update_stop.is_set():
+            try:
+                res = app_updater.check_for_update(APP_VERSION, UPDATE_REPO)
+                with self._lock:
+                    self._update_info = res
+            except Exception:  # noqa: BLE001
+                pass
+            self._update_stop.wait(UPDATE_CHECK_HOURS * 3600.0)
+
+    def start_update(self) -> tuple[bool, str | None]:
+        """Begin a one-click update. Returns (ok, error)."""
+        with self._lock:
+            info = dict(self._update_info)
+        if not info.get("available"):
+            return False, "No update available right now."
+        if self._install_root is None:
+            return False, "Self-update only works in the installed app."
+        with self._update_prog_lock:
+            if self._update_prog.get("stage") in ("downloading", "extracting", "applying"):
+                return False, "An update is already in progress."
+            self._update_prog = {"stage": "downloading", "percent": 0, "detail": "Starting..."}
+        threading.Thread(target=self._update_worker, args=(info,), daemon=True).start()
+        return True, None
+
+    def _update_worker(self, info: dict[str, Any]) -> None:
+        import tempfile
+        import zipfile
+
+        tag = str(info.get("latest") or "latest")
+        safe = "".join(c if (c.isalnum() or c in "._-") else "_" for c in tag)
+        try:
+            stage = Path(tempfile.gettempdir()) / "css_update" / safe
+            if stage.exists():
+                shutil.rmtree(stage, ignore_errors=True)
+            stage.mkdir(parents=True, exist_ok=True)
+            zippath = stage.parent / f"{safe}.zip"
+            url = str(info.get("url") or "")
+            total_hint = int(info.get("size") or 0)
+
+            def _cb(got: int, total: int) -> None:
+                t = total or total_hint or 1
+                self._set_update_prog("downloading", min(99, int(got * 100 / t)),
+                                      f"{got // 1048576} MB downloaded")
+
+            self._set_update_prog("downloading", 0, "Downloading update...")
+            app_updater.download_with_progress(url, zippath, _cb)
+            self._set_update_prog("extracting", 0, "Unpacking update...")
+            with zipfile.ZipFile(zippath, "r") as zf:
+                zf.extractall(stage)
+            try:
+                zippath.unlink(missing_ok=True)
+            except OSError:
+                pass
+            exe = stage / "SecureCam-win32-x64" / "SecureCam.exe"
+            if not exe.is_file():
+                raise RuntimeError("Downloaded package is incomplete (app missing).")
+            bat = app_updater.write_apply_script(stage, self._install_root, tag)
+            self._set_update_prog("applying", 100, "Restarting to apply update...")
+            subprocess.Popen(
+                [str(bat)],
+                creationflags=subprocess.CREATE_NEW_CONSOLE,
+                cwd=str(tempfile.gettempdir()),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+            )
+            # Give the apply script a head start, then exit so files unlock.
+            time.sleep(4.0)
+            try:
+                self.stop()
+            finally:
+                os._exit(0)
+        except Exception as e:  # noqa: BLE001
+            self._set_update_prog("error", 0, str(e)[:300])
 
     def set_zoom(self, z: float) -> None:
         self._zoom = max(1.0, min(5.0, z))
@@ -808,6 +945,7 @@ class SecurityEngine:
         self._stop.set()
         self._analysis_stop.set()
         self._analysis_wanted.set()
+        self._update_stop.set()
         self._stop_mic()
         self._voice_event = None
         if self._thread:

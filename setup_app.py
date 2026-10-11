@@ -114,6 +114,7 @@ def make_shortcut(app: str) -> None:
 
 
 def main() -> int:
+    auto = "--auto" in sys.argv[1:]
     print("=" * 60)
     print("  CAMER SECURE SYSTEM - one-click setup")
     print("  Installs everything automatically, then launches the app.")
@@ -124,7 +125,7 @@ def main() -> int:
     if not app:
         log("[ERROR] Could not find SecureCam.exe next to this file.")
         log("Keep this setup file inside the extracted download folder.")
-        input("Press Enter to close ... ")
+        input("Press Enter to close ... ") if not auto else None
         return 1
     req = os.path.join(root, "requirements.txt")
 
@@ -138,7 +139,7 @@ def main() -> int:
         log("  1. Install Python 3.12 from https://www.python.org/downloads/")
         log("     (tick Add python.exe to PATH on the first screen)")
         log("  2. Re-run this setup.")
-        input("Press Enter to close ... ")
+        input("Press Enter to close ... ") if not auto else None
         return 1
     log(f"Using: {' '.join(py)} ({py_version(py)})")
 
@@ -148,7 +149,7 @@ def main() -> int:
     if os.path.isfile(req):
         if pip(py, "install", "-r", req) != 0:
             log("\n[ERROR] Package install failed. Check internet and re-run.")
-            input("Press Enter to close ... ")
+            input("Press Enter to close ... ") if not auto else None
             return 1
     else:
         log("[WARN] requirements.txt not found next to this file - skipping.")
@@ -181,8 +182,10 @@ def main() -> int:
     print("")
     print(f"  Full illustrated guide:\n  {SITE}")
     print("=" * 60)
+    if auto:
+        return 0
     try:
-        input("Press Enter to close ... ")
+        input("Press Enter to close ... ") if not auto else None
     except EOFError:
         pass
     return 0

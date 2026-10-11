@@ -35,10 +35,26 @@
     </div>
   </header>
 
+  <div id="update-banner" class="update-banner" style="display:none;">
+    <div class="update-text">
+      <strong id="update-title">Update available</strong>
+      <span id="update-notes" class="subtle"></span>
+      <div id="update-prog-row" style="display:none;margin-top:8px;">
+        <div class="idle-bar"><div id="update-fill" class="idle-fill" style="width:0%;"></div></div>
+        <span id="update-detail" class="subtle" style="font-size:0.8rem;"></span>
+      </div>
+    </div>
+    <div class="update-btns">
+      <button type="button" id="btn-update-now" class="btn">Update now</button>
+      <button type="button" id="btn-update-later" class="btn ghost">Later</button>
+    </div>
+  </div>
+
   <main class="layout">
     <section class="panel glass">
       <div class="panel-head">
         <h2>Status</h2>
+        <span id="app-ver" class="subtle" style="font-size:0.75rem;"></span>
       </div>
       <p id="engine-line" class="msg subtle" role="status"></p>
       <div class="idle-meter" style="margin-top:12px;">

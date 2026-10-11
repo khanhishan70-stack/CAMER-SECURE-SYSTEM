@@ -4,6 +4,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# Current app version. Bumped on every release - the in-app updater compares
+# this against the latest GitHub release tag to offer one-click updates.
+APP_VERSION = "1.0.1"
+UPDATE_REPO = "khanhishan70-stack/CAMER-SECURE-SYSTEM"
+UPDATE_CHECK_HOURS = 6.0
+
 EMBEDDING_FILE = DATA_DIR / "face_embedding.enc"
 SALT_FILE = DATA_DIR / ".salt"
 

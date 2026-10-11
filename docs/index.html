@@ -155,6 +155,7 @@
     <details><summary>“Camera issue / Could not open camera”?</summary><p>Close other apps using the webcam (Zoom, Teams, browser). Replug USB cameras. Then restart the app — it retries automatically.</p></details>
     <details><summary>Voice commands not heard?</summary><p>Turn <b>Voice control ON</b>, check <b>Microphone Voice Detection: ACTIVE</b>, speak clearly. If it says MUTED, click <b>UNMUTE</b> — muted means nobody can ever be heard, by design.</p></details>
     <details><summary>Is my face / voice sent anywhere?</summary><p>No. Face embeddings, password hashes and voice recognition all stay in the app's local <code>data\</code> folder on your PC. That's also why <code>data/</code> is never uploaded to GitHub.</p></details>
+    <details><summary>How do app updates work?</summary><p>The app checks GitHub for new versions by itself. When one drops, a banner pops inside the app — click <b>Update now</b> and it downloads, installs, re-runs setup (so new dependencies arrive too), restarts, and pops <b>Update complete</b>. Your face, password and mic-mute state are never touched by updates.</p></details>
   </section>
 </main>
 

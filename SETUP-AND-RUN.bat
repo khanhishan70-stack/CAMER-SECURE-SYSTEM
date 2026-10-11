@@ -126,4 +126,5 @@ echo.
 echo   Full illustrated guide:
 echo   https://khanhishan70-stack.github.io/CAMER-SECURE-SYSTEM/
 echo ============================================================
+if "%~1"=="/auto" exit /b 0
 pause

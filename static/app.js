@@ -57,6 +57,17 @@ const fcCanvas = $("face-canvas");
 const fcCtx = fcCanvas ? fcCanvas.getContext("2d") : null;
 const fcBadge = $("face-count-badge");
 let faceBoxes = [];
+const updateBanner = $("update-banner");
+const updateTitle = $("update-title");
+const updateNotes = $("update-notes");
+const updateProgRow = $("update-prog-row");
+const updateFill = $("update-fill");
+const updateDetail = $("update-detail");
+const btnUpdateNow = $("btn-update-now");
+const btnUpdateLater = $("btn-update-later");
+const appVerEl = $("app-ver");
+let updating = false;
+let justUpdatedSeen = null;
   const micEq = $("mic-eq");
   const micEqBars = micEq ? Array.from(micEq.children) : [];
 
@@ -227,6 +238,33 @@ let faceBoxes = [];
       }
     }
 
+    if (s.app_version && appVerEl) {
+      appVerEl.textContent = "v" + s.app_version;
+    }
+
+    if (s.update_available && s.update_latest) {
+      let dismissed = null;
+      try { dismissed = localStorage.getItem("css_update_dismissed"); } catch { /* ignore */ }
+      if (dismissed !== s.update_latest && !updating) {
+        updateBanner.style.display = "flex";
+        updateTitle.textContent = "Update available — v" + s.update_latest;
+        const notes = (s.update_notes || "A new version is ready.").trim();
+        updateNotes.textContent = notes.length > 220 ? notes.slice(0, 220) + "…" : notes;
+      } else {
+        updateBanner.style.display = "none";
+      }
+    } else if (!updating) {
+      updateBanner.style.display = "none";
+    }
+
+    if (s.just_updated && justUpdatedSeen !== s.just_updated) {
+      justUpdatedSeen = s.just_updated;
+      showNotification("Update complete — now running v" + s.just_updated, "match");
+      setVoiceLast("Update complete — now on v" + s.just_updated);
+      try { localStorage.removeItem("css_update_dismissed"); } catch { /* ignore */ }
+      fetch("/api/update/ack", { method: "POST" }).catch(() => {});
+    }
+
     if (s.face_boxes) {
       faceBoxes = s.face_boxes;
       if (fcBadge) {
@@ -344,6 +382,7 @@ let faceBoxes = [];
   let wsRetries = 0;
   function connectWs() {
     if (wsRetries > 30) {
+      if (updating) return; // an update restart is in flight - the waiter below reloads us
       document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;color:#888;"><h2 style="color:#f44;">Server Offline</h2><p>The Python backend is not responding. Close and relaunch SecureCam.</p></div>';
       return;
     }
@@ -565,6 +604,69 @@ let faceBoxes = [];
       voiceMsg.classList.add("err");
     }
   });
+
+  btnUpdateLater.addEventListener("click", () => {
+    try {
+      const m = updateTitle.textContent.match(/v([\d.]+)/);
+      if (m) localStorage.setItem("css_update_dismissed", m[1].replace(/^v/, ""));
+    } catch { /* ignore */ }
+    updateBanner.style.display = "none";
+  });
+
+  btnUpdateNow.addEventListener("click", async () => {
+    updating = true;
+    btnUpdateNow.disabled = true;
+    btnUpdateLater.disabled = true;
+    updateProgRow.style.display = "block";
+    updateFill.style.width = "2%";
+    updateDetail.textContent = "Starting download…";
+    try {
+      const r = await fetch("/api/update", { method: "POST" });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.detail || "Could not start update.");
+    } catch (e) {
+      updateDetail.textContent = e.message || "Could not start update.";
+      updating = false;
+      btnUpdateNow.disabled = false;
+      btnUpdateLater.disabled = false;
+      return;
+    }
+    let misses = 0;
+    const poll = setInterval(async () => {
+      try {
+        const p = await (await fetch("/api/update/progress")).json();
+        misses = 0;
+        if (p.stage === "downloading" || p.stage === "extracting") {
+          updateFill.style.width = Math.max(2, p.percent || 0) + "%";
+          updateDetail.textContent = (p.stage === "downloading" ? "Downloading update… " : "Unpacking update… ") + (p.detail || "");
+        } else if (p.stage === "applying") {
+          updateFill.style.width = "100%";
+          updateDetail.textContent = "Applying update — the app will restart…";
+        } else if (p.stage === "error") {
+          clearInterval(poll);
+          updateDetail.textContent = "Update failed: " + (p.detail || "unknown error");
+          updating = false;
+          btnUpdateNow.disabled = false;
+          btnUpdateLater.disabled = false;
+        }
+      } catch {
+        // Backend is exiting for the restart (or a blip). After a few real
+        // misses, wait for it to come back, then reload fresh.
+        if (++misses >= 3) {
+          clearInterval(poll);
+          updateDetail.textContent = "Restarting app…";
+          waitForBackend();
+        }
+      }
+    }, 2000);
+  });
+
+  function waitForBackend() {
+    fetch("/api/status").then((r) => {
+      if (!r.ok) throw new Error("down");
+      location.reload();
+    }).catch(() => setTimeout(waitForBackend, 5000));
+  }
 
   btnIntruderWarning.addEventListener("click", async () => {
     const currentlyOn = btnIntruderWarning.textContent === "ON";
