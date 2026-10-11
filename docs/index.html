@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CAMER SECURE SYSTEM — AI Desk Guard | Download + Setup Guide</title>
+<meta name="description" content="CAMER SECURE SYSTEM: face-recognition desk guard for Windows. Stranger auto-lock, offline voice control, animated face tracking. Free download + setup guide." />
+<style>
+  :root {
+    --bg: #070b16; --panel: #0c1226; --panel2: #101737;
+    --cyan: #22d3ee; --violet: #8b5cf6; --green: #4ade80; --red: #fb7185;
+    --text: #e8ecf8; --muted: #8b93b0; --border: rgba(139, 92, 246, 0.22);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; line-height: 1.65; }
+  a { color: var(--cyan); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+  nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); background: rgba(7,11,22,.82); border-bottom: 1px solid var(--border); }
+  nav .wrap { display: flex; align-items: center; gap: 22px; padding-top: 14px; padding-bottom: 14px; }
+  .logo { font-weight: 800; font-size: 1.05rem; letter-spacing: .04em; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--cyan), var(--violet)); display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 0 22px rgba(34,211,238,.45); }
+  nav .links { margin-left: auto; display: flex; gap: 18px; flex-wrap: wrap; }
+  nav .links a { color: var(--muted); text-decoration: none; font-size: .92rem; }
+  nav .links a:hover { color: var(--cyan); }
+  .hero { text-align: center; padding: 74px 0 46px; background: radial-gradient(700px 320px at 50% -40px, rgba(139,92,246,.28), transparent), radial-gradient(600px 280px at 85% 20%, rgba(34,211,238,.14), transparent); }
+  .badge-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+  .badge { font-size: .78rem; font-weight: 700; padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border); color: var(--green); background: rgba(74,222,128,.07); }
+  .badge.dim { color: var(--muted); }
+  h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: .01em; line-height: 1.12; }
+  h1 .grad { background: linear-gradient(90deg, var(--cyan), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tagline { color: var(--muted); font-size: 1.12rem; max-width: 640px; margin: 16px auto 0; }
+  .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+  .btn { display: inline-block; padding: 14px 34px; border-radius: 12px; font-weight: 800; font-size: 1.02rem; text-decoration: none; transition: transform .12s ease, box-shadow .12s ease; }
+  .btn-primary { background: linear-gradient(90deg, var(--cyan), var(--violet)); color: #06121f; box-shadow: 0 6px 32px rgba(34,211,238,.35); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(139,92,246,.5); }
+  .btn-ghost { border: 1px solid var(--border); color: var(--text); background: rgba(255,255,255,.03); }
+  .btn-ghost:hover { border-color: var(--cyan); }
+  .dl-note { color: var(--muted); font-size: .85rem; margin-top: 14px; }
+  section { padding: 52px 0; }
+  h2 { font-size: 1.7rem; margin-bottom: 8px; }
+  h2 .n { color: var(--cyan); }
+  .sub { color: var(--muted); margin-bottom: 26px; max-width: 720px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+  .card .ico { font-size: 1.7rem; }
+  .card h3 { margin: 10px 0 6px; font-size: 1.08rem; }
+  .card p { color: var(--muted); font-size: .94rem; }
+  .shot { border-radius: 14px; border: 1px solid var(--border); overflow: hidden; background: var(--panel); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot figcaption { padding: 12px 16px; color: var(--muted); font-size: .88rem; border-top: 1px solid var(--border); }
+  .shots { display: grid; grid-template-columns: 1fr; gap: 22px; }
+  @media (min-width: 860px) { .shots.two { grid-template-columns: 1fr 1fr; } }
+  .steps { counter-reset: step; display: grid; gap: 14px; }
+  .step { display: flex; gap: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+  .step::before { counter-increment: step; content: counter(step); flex: 0 0 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), var(--violet)); color: #06121f; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .step h3 { font-size: 1.05rem; margin-bottom: 4px; }
+  .step p, .step li { color: var(--muted); font-size: .94rem; }
+  .step ul { margin: 6px 0 0 18px; }
+  code, pre { font-family: Consolas, "Courier New", monospace; }
+  pre { background: #05080f; border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; overflow-x: auto; margin-top: 10px; font-size: .86rem; color: #c9f5ff; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .93rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--cyan); }
+  td:first-child code { color: var(--green); }
+  .faq details { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; font-weight: 700; }
+  .faq p { color: var(--muted); font-size: .93rem; margin-top: 8px; }
+  footer { border-top: 1px solid var(--border); padding: 30px 0 46px; color: var(--muted); font-size: .88rem; text-align: center; }
+  .kbd { background: rgba(255,255,255,.07); border: 1px solid var(--border); border-radius: 6px; padding: 1px 8px; font-size: .85em; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><span class="logo-mark">◉</span> CAMER SECURE SYSTEM</a>
+    <div class="links">
+      <a href="#download">Download</a>
+      <a href="#features">Features</a>
+      <a href="#setup">Setup</a>
+      <a href="#activate">Activate</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="https://github.com/khanhishan70-stack/CAMER-SECURE-SYSTEM" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge-row">
+      <span class="badge">● v1.0.0</span>
+      <span class="badge">Windows 10 / 11</span>
+      <span class="badge dim">100% offline · face + voice AI on your PC</span>
+    </div>
+    <h1>CAMER <span class="grad">SECURE</span> SYSTEM</h1>
+    <p class="tagline">Your AI desk guard. It knows your face, locks out strangers automatically, obeys your voice — and nothing ever leaves your PC.</p>
+    <div class="cta-row" id="download">
+      <a class="btn btn-primary" href="https://github.com/khanhishan70-stack/CAMER-SECURE-SYSTEM/releases/download/v1.0.0/CAMER-SECURE-SYSTEM-Windows.zip">⬇ Download for Windows</a>
+      <a class="btn btn-ghost" href="https://github.com/khanhishan70-stack/CAMER-SECURE-SYSTEM" target="_blank" rel="noopener">★ View on GitHub</a>
+    </div>
+    <p class="dl-note">ZIP · ~300&nbsp;MB · Windows 10/11 64-bit · free &amp; open source (MIT). <a href="#setup">Setup takes ~5 minutes ↓</a></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="features">
+    <h2><span class="n">01 ·</span> Features</h2>
+    <p class="sub">Everything runs locally — camera, face AI, voice recognition. No accounts, no cloud, no subscriptions.</p>
+    <div class="grid">
+      <div class="card"><div class="ico">🛡️</div><h3>Stranger auto-lock</h3><p>An unknown face is read for 5 seconds. Still unknown? The screen locks and Ava warns <i>“Sorry, you are not the owner of this system”</i> — once per lock.</p></div>
+      <div class="card"><div class="ico">◉</div><h3>Animated face tracking</h3><p>Every face gets a glowing box with a sweeping scanline plus a live face counter on the smooth 720p preview.</p></div>
+      <div class="card"><div class="ico">🎙️</div><h3>Offline voice control</h3><p><span class="kbd">camera on/off</span> · <span class="kbd">voice on/off</span> · <span class="kbd">Esta lock PC</span> (instant Win+L). Wake word works even with Voice Control off.</p></div>
+      <div class="card"><div class="ico">🔇</div><h3>Mic MUTE</h3><p>One click fully shuts the microphone down — not even the wake word listens. Saved permanently until you unmute.</p></div>
+      <div class="card"><div class="ico">👋</div><h3>Guard announcements</h3><p><i>“Guard active.”</i> when you leave the desk, <i>“Welcome back”</i> when you return, shoulder-surfing alerts included.</p></div>
+      <div class="card"><div class="ico">🔒</div><h3>Real lock, zero setup</h3><p>With a password you get the SecureCam overlay; without one, strangers still hit a real Windows lock (Win+L).</p></div>
+    </div>
+  </section>
+
+  <section id="screenshots">
+    <h2><span class="n">02 ·</span> Screenshots</h2>
+    <p class="sub">The real app, running live — note the two tracked faces with glowing scan boxes on the preview.</p>
+    <div class="shots">
+      <figure class="shot"><img src="assets/shot-main.png" alt="CAMER SECURE SYSTEM main dashboard with live camera preview and animated face boxes" /><figcaption><b>Main dashboard</b> — live preview with animated face boxes + counter, guard status, camera picker.</figcaption></figure>
+      <div class="shots two">
+        <figure class="shot"><img src="assets/shot-voice.png" alt="Voice commands section with Security Mode toggle and MUTE button" /><figcaption><b>Voice commands</b> — Security Mode toggle, Voice control, and the permanent <b>MUTE</b> button.</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-setup.png" alt="Register your face and lock screen password sections" /><figcaption><b>Face + password</b> — where you add your face pic and set the unlock password.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup">
+    <h2><span class="n">03 ·</span> Setup — from zero to guarding in 5 minutes</h2>
+    <p class="sub">You need: Windows 10/11 64-bit, a webcam, a microphone (for voice), internet once (downloads).</p>
+    <div class="steps">
+      <div class="step"><div><h3>Download &amp; extract</h3><p>Grab the ZIP above and extract it anywhere, e.g. <code>C:\CAMER-SECURE-SYSTEM</code>. Inside you'll find <code>SecureCam.exe</code>.</p></div></div>
+      <div class="step"><div><h3>Install Python 3.12</h3><p>From <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a> — on the first installer screen tick <b>“Add python.exe to PATH”</b>, then Install.</p></div></div>
+      <div class="step"><div><h3>Install the AI brain (one command)</h3><p>Open Command Prompt <b>in the extracted folder</b> and run:</p><pre>"C:\Program Files\Python312\python.exe" -m pip install -r requirements.txt</pre><p>The face-AI model (~300 MB) downloads itself on first launch. The voice model is already bundled.</p></div></div>
+      <div class="step"><div><h3>Launch</h3><p>Double-click <code>SecureCam.exe</code>. First start takes ~30 seconds (AI warming up). Then <a href="#activate">activate it below ↓</a></p></div></div>
+    </div>
+  </section>
+
+  <section id="activate">
+    <h2><span class="n">04 ·</span> Activate — add your face pic &amp; password</h2>
+    <p class="sub">Three switches inside the app and you're protected.</p>
+    <div class="steps">
+      <div class="step"><div><h3>Add your face pic — <i>Register your face</i> section</h3><ul><li><b>Capture from desk camera</b> — sit in good light, hold still, click. <i>or</i></li><li><b>Upload JPG / PNG instead</b> — pick a clear front-facing photo.</li></ul><p>Only an encrypted embedding is stored (<code>data\face_embedding.enc</code>) — never your photo. <b>Delete saved face</b> wipes it.</p></div></div>
+      <div class="step"><div><h3>Set the unlock password — <i>Lock screen password</i> section</h3><p>Type 4+ characters → <b>Set password</b>. A stranger lock can only be dismissed with this. <b>No password yet?</b> Strangers still get locked out via real Windows lock (Win+L) — set a password anytime for the SecureCam-style overlay.</p></div></div>
+      <div class="step"><div><h3>Turn guarding ON — <i>Security Mode</i> toggle</h3><p>Switch <b>Security Mode ON</b> (top of <i>Voice commands</i>, or say <span class="kbd">camera on</span>). Statuses to expect: <b>You are here</b> (you're present) → <b>GUARD ACTIVE</b> (desk empty) → <b>Unknown face — reading Ns</b> → <b>LOCKED</b>.</p></div></div>
+      <div class="step"><div><h3>Talk to it (optional) — <i>Voice commands</i></h3><table><tr><th>Say</th><th>Does</th></tr><tr><td><code>(Esta) camera on / off</code></td><td>Security Mode ON / OFF</td></tr><tr><td><code>(Esta) voice on / off</code></td><td>Voice control ON / OFF</td></tr><tr><td><code>Esta lock PC</code></td><td>Locks Windows instantly</td></tr></table><p>Voice Control OFF still hears the wake word <i>“voice on”</i>. <b>MUTE</b> silences the mic completely, forever until you unmute.</p></div></div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq">
+    <h2><span class="n">05 ·</span> FAQ</h2>
+    <p class="sub">Quick answers to the common gotchas.</p>
+    <details><summary>Stranger detected but no lock screen appeared?</summary><p>You hadn't set an unlock password yet (older builds skipped the lock then). v1.0.0 always locks: password overlay if set, otherwise a real Windows lock (Win+L). Set a password for the SecureCam-style screen.</p></details>
+    <details><summary>Preview lagging?</summary><p>v1.0.0 runs the camera pump + face AI on background threads at 720p/30fps. If it's still choppy: close heavy apps (the AI likes a free CPU), make sure Security Mode is ON, and keep the camera at 1.0× zoom.</p></details>
+    <details><summary>“Camera issue / Could not open camera”?</summary><p>Close other apps using the webcam (Zoom, Teams, browser). Replug USB cameras. Then restart the app — it retries automatically.</p></details>
+    <details><summary>Voice commands not heard?</summary><p>Turn <b>Voice control ON</b>, check <b>Microphone Voice Detection: ACTIVE</b>, speak clearly. If it says MUTED, click <b>UNMUTE</b> — muted means nobody can ever be heard, by design.</p></details>
+    <details><summary>Is my face / voice sent anywhere?</summary><p>No. Face embeddings, password hashes and voice recognition all stay in the app's local <code>data\</code> folder on your PC. That's also why <code>data/</code> is never uploaded to GitHub.</p></details>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>CAMER SECURE SYSTEM</b> v1.0.0 · MIT License · by <a href="https://github.com/khanhishan70-stack" target="_blank" rel="noopener">khanhishan70-stack</a></p>
+    <p><a href="https://github.com/khanhishan70-stack/CAMER-SECURE-SYSTEM" target="_blank" rel="noopener">GitHub repository</a> · <a href="https://github.com/khanhishan70-stack/CAMER-SECURE-SYSTEM/releases" target="_blank" rel="noopener">All releases</a></p>
+  </div>
+</footer>
+</body>
+</html>

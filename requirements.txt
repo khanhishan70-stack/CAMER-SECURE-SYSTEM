@@ -1,0 +1,14 @@
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+cryptography>=42.0.0
+python-multipart>=0.0.9
+pillow>=10.0.0
+insightface>=0.7.3
+# For CPU: pip install onnxruntime
+# For GPU (recommended for your GTX): pip install onnxruntime-gpu
+onnxruntime>=1.17.0
+# Microphone input for voice commands (offline Vosk speech recognition)
+sounddevice>=0.4.6
+vosk>=0.3.45

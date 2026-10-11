@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Secrets + personal runtime data (NEVER commit these)
+data/*
+!data/voice/
+data/voice/*
+!data/voice/*.wav
+# data/ holds: face_embedding.enc, .salt, password.hash, voice_state.json,
+# AI models (vosk + auto-downloaded insightface) - all local-only.
+
+# Packaged Windows builds (shipped via GitHub Releases, not git)
+dist-electron/
+
+# Accidental nested duplicate of this project
+camera SECU 2/
+
+# Electron / Node
+node_modules/
+electron_app/node_modules/
+package-lock.json
+electron_app/package-lock.json
+
+# Logs + local junk
+*.log
+grok_logs.csv
+
+# IDE / OS
+.vscode/
+.continue/
+.freebuff/
+.DS_Store
+Thumbs.db

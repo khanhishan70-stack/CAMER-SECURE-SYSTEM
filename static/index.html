@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecureCam — AI desk guard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=2" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+
+  <div id="notif-toast" class="notif-toast hidden">
+    <span id="notif-icon" class="notif-icon"></span>
+    <span id="notif-text" class="notif-text"></span>
+  </div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>SecureCam</h1>
+        <p class="tag">Face-aware Windows lock · local-first · encrypted enrollment</p>
+      </div>
+    </div>
+    <div class="pill-row">
+      <span id="pill-deepface" class="pill pill-muted">AI core</span>
+      <span id="pill-enrolled" class="pill pill-muted">Not enrolled</span>
+      <span id="pill-scene" class="pill pill-scene">Starting…</span>
+      <button type="button" id="btn-toggle" class="pill toggle-off">OFF</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel glass">
+      <div class="panel-head">
+        <h2>Status</h2>
+      </div>
+      <p id="engine-line" class="msg subtle" role="status"></p>
+      <div class="idle-meter" style="margin-top:12px;">
+        <div class="idle-label">
+          <span>Guard status</span>
+          <strong id="idle-count">—</strong>
+        </div>
+        <div class="idle-bar"><div id="idle-fill" class="idle-fill"></div></div>
+      </div>
+        <div class="camera-select" style="margin-top:16px;">
+          <div style="margin-bottom:10px;">
+            <div style="position:relative;width:100%;max-width:360px;display:block;">
+            <img id="preview-img" style="width:100%;border-radius:8px;border:1px solid var(--glass-border);background:#000;min-height:160px;display:block;" />
+            <canvas id="face-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border-radius:8px;"></canvas>
+            <div id="face-count-badge" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.65);color:#4ade80;padding:2px 9px;border-radius:12px;font-size:0.75rem;font-weight:700;display:none;pointer-events:none;border:1px solid rgba(74,222,128,0.35);"></div>
+          </div>
+            <div style="margin-top:6px;display:flex;gap:6px;justify-content:center;">
+              <button type="button" id="btn-zoom-out" class="btn ghost" style="padding:0.3rem 0.7rem;font-size:0.85rem;">−</button>
+              <span id="zoom-label" style="font-size:0.82rem;color:var(--muted);line-height:2;">1.0×</span>
+              <button type="button" id="btn-zoom-in" class="btn ghost" style="padding:0.3rem 0.7rem;font-size:0.85rem;">+</button>
+            </div>
+          </div>
+          <div class="camera-select-row">
+            <label for="cam-select">Camera:</label>
+            <select id="cam-select"><option value="">Loading…</option></select>
+            <input type="number" id="cam-manual" placeholder="Index" min="0" max="99" style="width:65px;padding:0.4rem 0.4rem;border-radius:8px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.35);color:var(--text);font-size:0.82rem;font-family:inherit;" />
+            <button type="button" id="btn-cam-go" class="btn ghost" style="padding:0.35rem 0.6rem;font-size:0.75rem;">Go</button>
+            <button type="button" id="btn-refresh-cam" class="btn ghost" style="padding:0.35rem 0.6rem;font-size:0.75rem;">Refresh</button>
+          </div>
+          <div class="camera-select-row" style="margin-top:8px;">
+            <input type="text" id="cam-url" placeholder="DroidCam URL e.g. http://192.168.0.174:4747/video" style="flex:1;padding:0.4rem 0.5rem;border-radius:8px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.35);color:var(--text);font-size:0.82rem;font-family:inherit;" />
+            <button type="button" id="btn-cam-url" class="btn accent" style="padding:0.35rem 0.7rem;font-size:0.78rem;">Connect</button>
+          </div>
+        </div>
+
+        <div class="intruder-warning-section glass-inner" style="margin-top:16px;">
+          <h3 style="margin:0 0 4px;font-size:1rem;">Shoulder-surfing alert</h3>
+          <p class="small" style="margin:0 0 10px;">
+            When ON, a warning popup appears asking if you want to lock when someone watches your screen from behind.
+            When OFF, the lock screen appears immediately without warning.
+          </p>
+          <div class="camera-select-row">
+            <span style="font-size:0.88rem;color:var(--muted);">Intruder warning:</span>
+            <button type="button" id="btn-intruder-warning" class="pill toggle-off">OFF</button>
+          </div>
+        </div>
+
+        <div class="voice-section glass-inner" style="margin-top:16px;">
+          <h3 style="margin:0 0 4px;font-size:1rem;">Voice commands</h3>
+          <p class="small" style="margin:0 0 10px;">
+            Say <strong>"camera on"</strong> to turn Security Mode ON, <strong>"camera off"</strong> to turn it OFF,
+            <strong>"voice on/off"</strong> to toggle Voice Control, and <strong>"Esta lock PC"</strong> to lock the
+            PC instantly (name + lock, like Win+L - a plain "lock screen" alone won't lock). Speech is recognized
+            locally on this PC (offline). While Voice Control is OFF the mic still listens for the wake word
+            <strong>"voice on"</strong> only, so you never need to click to re-enable it. Use <strong>MUTE</strong>
+            to fully shut the microphone down - then the AI hears absolutely no one until you click <strong>UNMUTE</strong>.
+            The mute state is saved and stays effective even after the app restarts.
+          </p>
+          <div class="camera-select-row" style="justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:0.88rem;color:var(--muted);">Security Mode:</span>
+            <button type="button" id="btn-toggle2" class="pill toggle-off">OFF</button>
+          </div>
+          <div class="camera-select-row" style="justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:0.88rem;color:var(--muted);">Voice control:</span>
+            <button type="button" id="btn-voice" class="pill toggle-off">OFF</button>
+          </div>
+          <div class="camera-select-row" style="justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:0.88rem;color:var(--muted);">Microphone:</span>
+            <button type="button" id="btn-mic-mute" class="pill toggle-off">MUTE</button>
+          </div>
+          <div class="voice-status-row">
+            <span>Camera Status:</span>
+            <strong id="cam-status" class="off">OFF</strong>
+          </div>
+          <div class="voice-status-row">
+            <span>Microphone Voice Detection:</span>
+            <strong id="mic-status" class="off">INACTIVE</strong>
+          </div>
+          <div class="voice-status-row" id="mic-muted-row" style="display:none;">
+            <span style="color:#e5484d;font-weight:bold;">AI HEARS NO ONE - mic is fully muted. Click "UNMUTE" to let the AI hear voice commands again.</span>
+          </div>
+          <div class="mic-eq-row" id="mic-eq-row" style="display:none;">
+            <div id="mic-eq" class="mic-eq" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <span id="voice-last" class="off" style="font-size:0.8rem;"></span>
+          </div>
+          <div class="voice-status-row" id="mic-error-row" style="display:none;">
+            <span id="mic-error" class="msg err"></span>
+          </div>
+          <div class="voice-status-row" style="margin-top:4px;">
+            <span>Commands:</span>
+            <strong class="on" style="font-size:0.82rem;">(Esta) camera on · (Esta) camera off · (Esta) voice on/off · Esta lock PC</strong>
+          </div>
+          <p id="voice-msg" class="msg subtle" style="margin-top:8px;"></p>
+        </div>
+    </section>
+
+    <section class="panel enroll-panel glass">
+      <div class="panel-head">
+        <h2>Register your face</h2>
+        <span class="hint">Stored only as an encrypted embedding under <code>data/</code></span>
+      </div>
+      <p class="lead">
+        Capture a clear, front-facing photo with decent light. After enrollment, the guard stays off while you're at your desk.
+        When you leave and nobody is detected, the guard activates. If an unknown face appears, SecureCam reads it for about
+        10 seconds to be sure — recognize you and nothing happens, still unknown and the lock screen pops.
+      </p>
+      <div class="btn-row">
+        <button type="button" id="btn-capture-enroll" class="btn accent">
+          Capture from desk camera
+        </button>
+        <label class="btn ghost file-btn">
+          Upload JPG / PNG instead
+          <input id="file-inp" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+        </label>
+      </div>
+      <p id="enroll-msg" class="msg" role="status"></p>
+
+      <div class="danger-zone glass-inner">
+        <h3>Clear enrollment</h3>
+        <p class="small">Removes encrypted embedding from this PC.</p>
+        <button type="button" id="btn-clear" class="btn danger-outline">Delete saved face</button>
+      </div>
+
+      <div class="password-section glass-inner" style="margin-top: 20px;">
+        <h3>Lock screen password</h3>
+        <p class="small">
+          When an unknown face stays in front of the camera for about 10 seconds, a fullscreen lock overlay appears. Set a password to unlock it.
+        </p>
+        <div class="pwd-row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input type="password" id="inp-password" placeholder="Enter new password" style="flex:1;min-width:160px;padding:10px 14px;border:1px solid #333;border-radius:8px;background:#1a1a2e;color:#fff;font-size:14px;" />
+          <button type="button" id="btn-set-password" class="btn accent">Set password</button>
+        </div>
+        <p id="pwd-msg" class="msg" role="status" style="margin-top:8px;"></p>
+        <div id="pwd-clear-row" style="display:none;margin-top:10px;">
+          <button type="button" id="btn-clear-password" class="btn danger-outline">Remove password</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>
+      Run this app on unlock so monitoring resumes automatically.
+      Add <code>python -m uvicorn app.main:app --host 127.0.0.1 --port 8844</code> to Windows Startup if you want it always on.
+    </p>
+  </footer>
+
+  <script src="/static/app.js?v=2"></script>
+</body>
+</html>

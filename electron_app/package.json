@@ -1,0 +1,48 @@
+{
+  "name": "securecam-desktop",
+  "version": "1.0.0",
+  "description": "SecureCam AI Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:portable": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.securecam.desktop",
+    "productName": "SecureCam",
+    "directories": {
+      "output": "../dist-electron"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "..",
+        "to": "backend",
+        "filter": [
+          "app/**/*",
+          "static/**/*",
+          "run.py",
+          "requirements.txt"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": null
+    },
+    "portable": {
+      "artifactName": "SecureCam-Desktop-${version}.exe"
+    }
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.0.1",
+    "electron": "^33.4.11"
+  }
+}
